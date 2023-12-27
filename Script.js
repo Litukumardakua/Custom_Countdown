@@ -14,6 +14,7 @@ let countdownTitle = "";
 let countdownDate = "";
 let countdownValue = Date;
 let countdownActive;
+let saveedCountdowm;
 
 const second = 1000;
 const minute = second * 60;
@@ -28,13 +29,11 @@ function updateDom() {
   countdownActive = setInterval(() => {
     const now = new Date().getTime();
     const distance = countdownValue - now;
-    console.log("distance", distance);
 
     const days = Math.floor(distance / day);
     const hours = Math.floor((distance % day) / hour);
     const minuts = Math.floor((distance % hour) / minute);
     const seconds = Math.floor((distance % minute) / second);
-    console.log(days, hours, minuts, seconds);
 
     //Hide Inputs
     inputContainer.hidden = true;
@@ -62,14 +61,17 @@ function updateCountdown(e) {
   e.preventDefault();
   countdownTitle = e.srcElement[0].value;
   countdownDate = e.srcElement[1].value;
-  console.log(countdownDate, countdownTitle);
+  saveedCountdowm = {
+    title:countdownTitle,
+    date:countdownDate
+  }
+  localStorage.setItem('countdown', JSON.stringify(saveedCountdowm));
   // check for valid date
   if (countdownDate === "") {
     alert("please select a date for the countdown.");
   } else {
     //get number version of current date, updateDom
     countdownValue = new Date(countdownDate).getTime();
-    console.log(countdownValue);
     updateDom();
   }
 }
@@ -86,8 +88,23 @@ function reset() {
   //Reset value
   countdownTitle = "";
   countdownDate = "";
+  localStorage.removeItem('countdown');
 }
+
+function restorePreviousCountdown() {
+   if(localStorage.getItem('countdown')){
+     inputContainer.hidden = true;
+     saveedCountdowm = JSON.parse(localStorage.getItem('countdown'));
+     countdownTitle = saveedCountdowm.title;
+     countdownDate = saveedCountdowm.date;
+     countdownValue = new Date(countdownDate).getTime();
+     updateDom();
+   }
+}
+
 
 countdownForm.addEventListener("submit", updateCountdown);
 countdownBtn.addEventListener("click", reset);
 completeBtn.addEventListener("click", reset);
+
+restorePreviousCountdown();
